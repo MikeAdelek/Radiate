@@ -15,11 +15,14 @@ export const CartProvider = ({ children }) => {
   const [showCart, setShowCart] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // Product inventory seperate from the cart
+  const [productInventory, setProductInventory] = useState({});
+
   // calculate total price whenever cart price changes
   useEffect(() => {
     const calculateTotal = () => {
       return cartItems.reduce((total, item) => {
-        return total + item.price * item.quantity;
+        return total + item.price * item.CartQuantity;
       }, 0);
     };
 
@@ -27,6 +30,30 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product) => {
+    //check if we have this product in our inventory
+    if (!productInventory[product.id]) {
+      // use the product original stock
+      setProductInventory((prev) => ({
+        ...prev,
+        [product.id]: product.quantity
+      }));
+    }
+
+    // Get current inventory of this product
+    const currentStock = productInventory[product.id] || product.quantity;
+
+    // if no stock is left, alert and return
+    if (currentStock <= 0) {
+      alert("Sorry, Item is out of stock!");
+      return;
+    }
+
+    // update inventory by reducing 1 from stock
+    setProductInventory((prev) => ({
+      ...prev,
+      [product.id]: prev[product.id] - 1 || product.quantity - 1
+    }));
+
     setCartItems((prevItems) => {
       // check if the item already exists in the cart
       const existingItem = prevItems.find((item) => item.id === product.id);
@@ -35,16 +62,27 @@ export const CartProvider = ({ children }) => {
         // If item exists, increment quantity
         return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+            ? { ...item, cartQuantity: (item.cartQuantity || 1) + 1 }
             : item
         );
       }
       // If items does not exists, add it with quantity 1
-      return [...prevItems, { ...product, quantity: product.quantity || 1 }];
+      return [...prevItems, { ...product, cartQuantity: 1 }];
     });
   };
 
   const removeFromCart = (productId) => {
+    // Get the item we're removing to restore inventory
+    const itemToRemove = cartItems.find((item) => item.id === productId);
+
+    if (itemToRemove) {
+      // restore inventory when removing from cart
+      setProductInventory((prev) => ({
+        ...prev,
+        [productId]: prev[productId] || 0 + (itemToRemove.cartQuantity || 1)
+      }));
+    }
+
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.id !== productId)
     );
@@ -53,27 +91,73 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity < 1) return;
 
+    // Find current item
+    const currentItem = cartItems.find((item) => item.id === productId);
+    if (!currentItem) return;
+
+    const quantityDifference = newQuantity - currentItem.cartQuantity || 1;
+
+    // if increasing quantity, check if we have enough inventory
+    if (quantityDifference > 0) {
+      const available = productInventory[productId] || 0;
+
+      if (availableStock < quantityDifference) {
+        alert(`Sprry, only${availableStock} more units availabe in the stock`);
+        return;
+      }
+
+      // update Inventory
+      setProductInventory((prev) => ({
+        ...prev,
+        [productId]: prev[productId] - quantityDifference
+      }));
+    } else if (quantityDifference < 0) {
+      // restore inventory if decreasing
+      setProductInventory((prev) => ({
+        ...prev,
+        [productId]: (prev[productId] || 0) + Math.abs(quantityDifference)
+      }));
+    }
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
+        item.id === productId ? { ...item, cartQuantity: newQuantity } : item
       )
     );
   };
 
   const handleChange = (product) => {
-    if (product.quantity === 1) {
+    if ((product.cartQuantity || 1) === 1) {
       removeFromCart(product.id);
     } else {
-      updateQuantity(product.id, product.quantity - 1);
+      updateQuantity(product.id, (product.cartQuantity || 1) - 1);
     }
   };
 
-  const clearCart = () => {
+ const clearCart = () => {
+    // Restore all inventory when clearing cart
+    const inventoryUpdates = {};
+    
+    cartItems.forEach(item => {
+      inventoryUpdates[item.id] = (productInventory[item.id] || 0) + (item.cartQuantity || 1);
+    });
+    
+    setProductInventory(prev => ({
+      ...prev,
+      ...inventoryUpdates
+    }));
+    
     setCartItems([]);
   };
 
   const toggleCart = () => {
     setShowCart((prev) => !prev);
+  };
+
+  // Get current available stock for a product
+  const getAvailableStock = (productId) => {
+    return productInventory[productId] !== undefined 
+      ? productInventory[productId] 
+      : null; // null means we haven't tracked it yet
   };
 
   const value = {
@@ -86,7 +170,8 @@ export const CartProvider = ({ children }) => {
     clearCart,
     toggleCart,
     handleChange,
-    totalPrice
+    totalPrice,
+    getAvailab
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

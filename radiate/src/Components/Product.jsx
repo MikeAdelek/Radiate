@@ -106,7 +106,7 @@ const Product = () => {
                         $ {product.price} USD
                       </span>
                       <span className="text-sm text-gray-500">
-                        {product.quantity} left
+                        {getAvailableStock(product.id) ?? product.quantity } left
                       </span>
                     </div>
                   </motion.div>
