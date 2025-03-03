@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 const CartContext = createContext();
 
@@ -13,6 +13,18 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  // calculate total price whenever cart price changes
+  useEffect(() => {
+    const calculateTotal = () => {
+      return cartItems.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0);
+    };
+
+    setTotalPrice(calculateTotal());
+  }, [cartItems]);
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -23,12 +35,12 @@ export const CartProvider = ({ children }) => {
         // If item exists, increment quantity
         return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
             : item
         );
       }
       // If items does not exists, add it with quantity 1
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...product, quantity: product.quantity || 1 }];
     });
   };
 
@@ -73,10 +85,11 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     clearCart,
     toggleCart,
-    handleChange
+    handleChange,
+    totalPrice
   };
 
-  return React.createElement(CartContext.Provider, { value }, children);
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export { CartContext };

@@ -11,6 +11,7 @@ export const ProductCard = [
     quantity: 10,
     category: "Hair"
   },
+  
   {
     id: "2",
     name: "Necessaire",
@@ -21,6 +22,7 @@ export const ProductCard = [
     quantity: 10,
     category: "Skin"
   },
+
   {
     id: "3",
     name: "Ethereal",

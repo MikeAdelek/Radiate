@@ -36,7 +36,7 @@ function App() {
         {/* <Route path="contact" element={<Contact />} /> */}
         <Route path="journal" element={<Journal />} />
         <Route path="/singleproduct/:productId" element={<SingleProduct />} />
-        <Route path="/checkout/:productId" element={<Checkout />} />
+        <Route path="/checkout" element={<Checkout />} />
 
         {/* Add a catch-all route for 404 errors */}
         <Route
