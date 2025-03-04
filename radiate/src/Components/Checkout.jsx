@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import { Card, CardHeader, CardContent } from "@mui/material";
 import { Input } from "@mui/material";
-import { Button } from "@mui/material";
-import { FiArrowLeft } from "react-icons/fi";
 import { useFormValidation } from "../utils/validateForm";
 import { useCart } from "./CartContext";
 import { FaCcPaypal, FaShopify, FaStripe, FaCcApplePay } from "react-icons/fa";
 
 const CheckoutPage = () => {
   const { cartItems, totalPrice } = useCart();
-  const [giftCard, setGiftCard] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { errors, checkoutForm, setCheckoutForm, validateCheckoutForm } =
     useFormValidation({
@@ -376,7 +372,6 @@ const CheckoutPage = () => {
                         <div className="ml-4 flex-grow">
                           <p className="text-sm font-medium text-gray-900">
                             {item.name}
-                            {/* {item.quantity > 1 && <div>{item.quantity}</div>} */}
                           </p>
                         </div>
                         <div>
@@ -396,18 +391,6 @@ const CheckoutPage = () => {
                   </p>
                 </div>
                 <div className="py-4 border-b border-gray-200">
-                  {/* <div className="flex justify-between mb-2">
-                    <p className="text-sm text-gray-700">Shipping: </p>
-                    <p className="text-sm text-gray-500">
-                      Calculated at next step
-                    </p>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-gray-700">Tax: </p>
-                    <p className="text-sm text-gray-500">
-                      Calculated at next step
-                    </p>
-                  </div> */}
                   <p className="text-xs text-gray-500 mt-4">
                     ** Expedited orders cannot be shipped or delivered on
                     weekends/holidays nor can they be shipped to P.O. box.
@@ -423,40 +406,3 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
-{
-  /* <div className="flex justify-center mb-8">
-    <div className="flex item-center space-x-4">
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-          step >= 1 ? "bg-[#635C4C] text-white" : "bg-gray-200"
-        }`}
-      >
-        1
-      </div>
-      <div
-        className={`w-16 h-1 ${
-          step >= 2 ? "bg-[#635C4C]" : "bg-gray-200"
-        }`}
-      />
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-          step >= 1 ? "bg-[#635C4C] text-white" : "bg-gray-200"
-        }`}
-      >
-        2
-      </div>
-      <div
-        className={`w-16 h-1 ${
-          step >= 2 ? "bg-[#635C4C]" : "bg-gray-200"
-        }`}
-      />
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-          step >= 1 ? "bg-[#635C4C] text-white" : "bg-gray-200"
-        }`}
-      >
-        3
-      </div>
-    </div>
-  </div> */
-}
