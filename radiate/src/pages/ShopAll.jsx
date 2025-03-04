@@ -13,8 +13,7 @@ const CATEGORIES = ["All", "Bestsellers", "Body", "Hair", "Scent", "Skin"];
 const ShopAll = () => {
   // State to manage the selected category
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isHovered, setIsHovered] = useState(null);
-  const { addToCart } = useCart();
+  const { addToCart, getAvailableStock } = useCart();
 
   // Filter the products based on the selected category
   const filteredProducts =
@@ -23,53 +22,6 @@ const ShopAll = () => {
       : selectedCategory === "Bestsellers"
       ? BestsellerProducts
       : ProductCard.filter((product) => product.category === selectedCategory);
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    }
-  };
-
-  const categoryVariants = {
-    hidden: { y: -20, opacity: 0 },
-    visible: (custom) => ({
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 120,
-        damping: 15,
-        delay: custom * 0.05
-      }
-    })
-  };
-
-  const buttonVariants = {
-    idle: { scale: 1 },
-    hover: {
-      scale: 1.05,
-      transition: { duration: 0.2 }
-    }
-  };
 
   return (
     <>
@@ -115,17 +67,15 @@ const ShopAll = () => {
                 key={product.id}
                 variants={Animation_Variants.itemVariants}
                 layout
-                className="group relative"
+                className="relative"
               >
                 <Link
                   to={`/singleproduct/${product.id}`}
-                  className="group relative bg-white rounded-lg overflow-hidden transition-transform duration-200 hover:translate-y-1"
+                  className="relative bg-white rounded-lg overflow-hidden transition-transform duration-200 hover:translate-y-1"
                 >
                   {/* Product Image with container */}
                   <motion.div
                     className="bg-white rounded-md shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg"
-                    onMouseEnter={() => setIsHovered(product.id)}
-                    onMouseLeave={() => setIsHovered(null)}
                     whileHover={{
                       y: -5,
                       boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)"
@@ -180,7 +130,8 @@ const ShopAll = () => {
                           className="text-sm text-gray-50"
                           whileHover={{ scale: 1.05 }}
                         >
-                          {product.quantity} left
+                          {getAvailableStock(product.id) ?? product.quantity}{" "}
+                          left
                         </motion.span>
                       </motion.div>
                     </motion.div>

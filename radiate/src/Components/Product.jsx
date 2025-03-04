@@ -18,7 +18,7 @@ const Product = () => {
   };
 
   return (
-    <section className="bg-white w-full">
+    <section className="bg-white w-full min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:pt-32 sm:pt-20 md:pt-28 pb-14">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -58,15 +58,16 @@ const Product = () => {
           {featuredProducts.map((product) => (
             <motion.div
               key={product.id}
+              layout
               variants={Animation_Variants.productVariants}
               whileHover="hover"
               className="relative"
             >
               <Link
                 to={`singleproduct/${product.id}`}
-                className="group relative bg-white rounded-lg overflow-hidden block"
+                className="relative bg-white rounded-lg overflow-hidden transition-transform duration-200 hover:translate-y-1"
               >
-                <div className="bg-white rounded-md shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div className="bg-white rounded-md shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg">
                   <div className="relative">
                     <motion.img
                       src={product.image}
