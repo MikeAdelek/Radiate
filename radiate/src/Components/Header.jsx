@@ -1,13 +1,11 @@
-import React, { memo, useEffect, useState, useCallback } from "react";
-import { Link, NavLink } from "react-router-dom";
-// import logo from "../assets/logo.svg";
-import { FiShoppingCart } from "react-icons/fi";
-import { HiMenuAlt4 } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
 import { useCart } from "./CartContext";
-import { ProductCard } from "./ProductDetail";
-import { Animation_Variants } from "./AnimationVariants";
+import { IoMdClose } from "react-icons/io";
+import { HiMenuAlt4 } from "react-icons/hi";
+import { FiShoppingCart } from "react-icons/fi";
+import { Link, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Animation_Variants } from "./AnimationVariants";
+import { memo, useEffect, useState, useCallback } from "react";
 
 // Navigation links.
 const navLinks = [
@@ -91,7 +89,11 @@ const MenuToggleIcon = memo(({ isOpen }) => {
 });
 
 const CartItem = memo(
-  ({ item, index, removeFromCart, updateQuantity, addToCart }) => {
+  ({ item, index, removeFromCart, updateQuantity, handleChange }) => {
+    // ensure we have a valid cartQuantity, defaulting to 1 if not set
+    const quantity = parseInt(item.cartQuantity || 1, 10);
+    const itemPrice = parseFloat(item.price);
+    const total = (itemPrice * quantity).toFixed(2);
     return (
       <motion.li
         className="py-4"
@@ -102,45 +104,40 @@ const CartItem = memo(
       >
         <div className="flex justify-between">
           <p className="font-medium">{item.name}</p>
-          <span>${(item.price * (item.quantity || 1)).toFixed(2)}</span>
+          <span>${total}</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <motion.button
-            onClick={() => removeFromCart(item.id)}
-            className="text-gray-500 hover:text-gray-700"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Remove
-          </motion.button>
+        <div>
+          <div className="flex items-center space-x-2">
+            <motion.button
+              onClick={() => removeFromCart(item.id)}
+              className="text-gray-500 hover:text-gray-700"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Remove
+            </motion.button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <motion.button
+              disabled={quantity <= 1}
+              onClick={() => handleChange(item)}
+              className="text-gray-500 hover:text-gray-700"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              -
+            </motion.button>
+            <span className="w-6 text-center">{quantity}</span>
+            <motion.button
+              onClick={() => updateQuantity(item.id, quantity + 1)}
+              className="text-gray-500 hover:text-gray-700"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              +
+            </motion.button>
+          </div>
         </div>
-        {/* <div className="flex items-center space-x-2">
-          <motion.button
-            onClick={() => addToCart(item.id, item.price, 1)}
-            className="text-gray-500 hover:text-gray-700"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            +
-          </motion.button>
-          <input
-            type="number"
-            value={item.quantity || 1}
-            min="1"
-            onChange={(e) =>
-              updateQuantity(item.id, parseInt(e.target.value) || 1)
-            }
-            className="w-8 text-gray-500"
-          />
-          <motion.button
-            onClick={() => removeFromCart(item.id, item.price, -1)}
-            className="text-gray-500 hover:text-gray-700"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            -
-          </motion.button>
-        </div> */}
       </motion.li>
     );
   }
@@ -150,13 +147,14 @@ const CartItem = memo(
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const { cartItems, showCart, setShowCart, removeFromCart, updateQuantity } =
-    useCart();
-
-  // Calculate total price for cart Items
-  const totalPrice = cartItems
-    .reduce((total, item) => total + item.price * (item.quantity || 1), 0)
-    .toFixed(2);
+  const {
+    cartItems,
+    showCart,
+    setShowCart,
+    removeFromCart,
+    updateQuantity,
+    totalPrice
+  } = useCart();
 
   // Convert callbacks to memo funtions to prevent unnecessary re-renders
   const toggleMenu = useCallback(() => {
@@ -169,7 +167,7 @@ const Header = () => {
 
   const closeBanner = useCallback(() => {
     setShowBanner(false);
-  });
+  }, [setShowBanner]);
 
   // Handle scroll locking
   useEffect(() => {
@@ -193,6 +191,12 @@ const Header = () => {
       body.style.width = "";
     };
   }, [isOpen, showCart]);
+
+  // Calculate formatted total price to ensure it's always valid
+  // const formattedTotalPrice =
+  //   typeof totalPrice === "number" && !isNaN(totalPrice)
+  //     ? totalPrice.toFixed(2)
+  //     : "0.00";
 
   return (
     <>
@@ -408,20 +412,24 @@ const Header = () => {
                     ) : (
                       <ul>
                         {cartItems.map((item, i) => (
-                          <>
-                            <CartItem
-                              key={item.id}
-                              item={item}
-                              index={i}
-                              removeFromCart={removeFromCart}
-                              // updateQuantity={updateQuantity}
-                              addToCart={item}
-                            />
-                            <img
-                              src={item.image}
-                              className="h-14 w-14 object-cover rounded"
-                            />
-                          </>
+                          <div key={item.id} className="py-3">
+                            <div className="flex items-start space-x-3">
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="h-14 w-14 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <CartItem
+                                  index={i}
+                                  item={item}
+                                  addToCart={item}
+                                  updateQuantity={updateQuantity}
+                                  removeFromCart={removeFromCart}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         ))}
                       </ul>
                     )}
@@ -437,7 +445,7 @@ const Header = () => {
                         transition={{ delay: 0.3 }}
                       >
                         <p>Total</p>
-                        <span>${totalPrice}</span>
+                        <span>${parseFloat(totalPrice).toFixed(2)}</span>
                       </motion.div>
                       <motion.div
                         className="flex justify-end mt-4"

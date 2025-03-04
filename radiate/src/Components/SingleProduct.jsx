@@ -190,7 +190,7 @@ const SingleProduct = () => {
           </div>
 
           {/* Quantity */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <span className="text-sm font-medium text-black block mb-2">
               Quantity
             </span>
@@ -216,7 +216,7 @@ const SingleProduct = () => {
                 {product.quantity} items left
               </span>
             </div>
-          </div>
+          </div> */}
 
           {/* Product details */}
           <motion.div variants={Animation_Variants.slideUp} className="mb-6">

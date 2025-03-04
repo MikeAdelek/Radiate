@@ -9,7 +9,7 @@ import { useCart } from "./CartContext";
 import { FaCcPaypal, FaShopify, FaStripe, FaCcApplePay } from "react-icons/fa";
 
 const CheckoutPage = () => {
-  const { cartItems, totalPrice, removeFromCart } = useCart();
+  const { cartItems, totalPrice } = useCart();
   const [giftCard, setGiftCard] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { errors, checkoutForm, setCheckoutForm, validateCheckoutForm } =
@@ -376,10 +376,10 @@ const CheckoutPage = () => {
                         <div className="ml-4 flex-grow">
                           <p className="text-sm font-medium text-gray-900">
                             {item.name}
-                            {item.quantity > 1 && <div>{item.quantity}</div>}
+                            {/* {item.quantity > 1 && <div>{item.quantity}</div>} */}
                           </p>
                         </div>
-                        <div className="flex-grow">
+                        <div>
                           <p className="text-sm font-medium text-gray-900">
                             ${(item.price * item.quantity).toFixed(2)}
                           </p>
@@ -389,8 +389,14 @@ const CheckoutPage = () => {
                   ))}
                 </div>
                 {/* Summary */}
+                <div className="flex justify-between mb-2">
+                  <p className="text-sm text-gray-700">Subtotal: </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    ${totalPrice.toFixed(2)}
+                  </p>
+                </div>
                 <div className="py-4 border-b border-gray-200">
-                  <div className="flex justify-between mb-2">
+                  {/* <div className="flex justify-between mb-2">
                     <p className="text-sm text-gray-700">Shipping: </p>
                     <p className="text-sm text-gray-500">
                       Calculated at next step
@@ -401,14 +407,8 @@ const CheckoutPage = () => {
                     <p className="text-sm text-gray-500">
                       Calculated at next step
                     </p>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <p className="text-sm text-gray-700">Subtotal: </p>
-                    <p className="text-sm font-medium text-gray-900">
-                      ${totalPrice.toFixed(2)}
-                    </p>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  </div> */}
+                  <p className="text-xs text-gray-500 mt-4">
                     ** Expedited orders cannot be shipped or delivered on
                     weekends/holidays nor can they be shipped to P.O. box.
                   </p>

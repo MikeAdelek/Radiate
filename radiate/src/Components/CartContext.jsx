@@ -22,11 +22,17 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     const calculateTotal = () => {
       return cartItems.reduce((total, item) => {
-        return total + item.price * item.CartQuantity;
+        // Ensure price and quantity are parsed as floats
+        const price = parseFloat(item.price);
+        const quantity = parseInt(item.cartQuantity || 1, 10);
+        // Multiply and add to total, then fix to 2 decimal places
+        return total + price * quantity;
       }, 0);
     };
 
-    setTotalPrice(calculateTotal());
+    // Set the total price with proper decimal precision
+    const total = calculateTotal();
+    setTotalPrice(Number(total.toFixed(2)));
   }, [cartItems]);
 
   const addToCart = (product) => {
@@ -99,10 +105,10 @@ export const CartProvider = ({ children }) => {
 
     // if increasing quantity, check if we have enough inventory
     if (quantityDifference > 0) {
-      const available = productInventory[productId] || 0;
+      const availableStock = productInventory[productId] || 0;
 
       if (availableStock < quantityDifference) {
-        alert(`Sprry, only${availableStock} more units availabe in the stock`);
+        alert(`Sorry, only${availableStock} more units availabe in the stock`);
         return;
       }
 
@@ -133,19 +139,20 @@ export const CartProvider = ({ children }) => {
     }
   };
 
- const clearCart = () => {
+  const clearCart = () => {
     // Restore all inventory when clearing cart
     const inventoryUpdates = {};
-    
-    cartItems.forEach(item => {
-      inventoryUpdates[item.id] = (productInventory[item.id] || 0) + (item.cartQuantity || 1);
+
+    cartItems.forEach((item) => {
+      inventoryUpdates[item.id] =
+        (productInventory[item.id] || 0) + (item.cartQuantity || 1);
     });
-    
-    setProductInventory(prev => ({
+
+    setProductInventory((prev) => ({
       ...prev,
       ...inventoryUpdates
     }));
-    
+
     setCartItems([]);
   };
 
@@ -155,8 +162,8 @@ export const CartProvider = ({ children }) => {
 
   // Get current available stock for a product
   const getAvailableStock = (productId) => {
-    return productInventory[productId] !== undefined 
-      ? productInventory[productId] 
+    return productInventory[productId] !== undefined
+      ? productInventory[productId]
       : null; // null means we haven't tracked it yet
   };
 
@@ -171,7 +178,7 @@ export const CartProvider = ({ children }) => {
     toggleCart,
     handleChange,
     totalPrice,
-    getAvailab
+    getAvailableStock
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

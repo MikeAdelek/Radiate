@@ -1,17 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ProductCard } from "./ProductDetail";
 import { useCart } from "./CartContext";
 import { FiShoppingCart } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { Animation_Variants } from "./AnimationVariants";
-import { Button } from "./Home";
 
 const Product = () => {
   // Limit to first 4 product
   const featuredProducts = ProductCard.slice(0, 4);
-  const [isHovered, setIsHovered] = useState(null);
-  const { addToCart } = useCart();
+  const { addToCart, getAvailableStock } = useCart();
 
   const handleAddToCart = (e, product) => {
     e.preventDefault(); // Prevent navigation when clicking the button
@@ -106,7 +104,7 @@ const Product = () => {
                         $ {product.price} USD
                       </span>
                       <span className="text-sm text-gray-500">
-                        {getAvailableStock(product.id) ?? product.quantity } left
+                        {getAvailableStock(product.id) ?? product.quantity} left
                       </span>
                     </div>
                   </motion.div>
